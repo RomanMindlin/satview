@@ -461,7 +461,9 @@ GET https://planetarycomputer.microsoft.com/api/sas/v1/token/landsat-c2-l2
   находит самый свежий PNG каждого источника в `output/` и публикует его запросом
   `POST https://api.telegram.org/bot<токен>/sendPhoto` (multipart: `chat_id`, `caption`,
   `photo`). Для источников EUMETSAT и Copernicus подпись содержит указание источника, которого
-  требуют их лицензии («Contains modified EUMETSAT Meteosat data 2026»).
+  требуют их лицензии («Contains modified EUMETSAT Meteosat data 2026»). Имена отправленных
+  картинок записываются в `telegram_sent.txt` в папке вывода, и повторно эти картинки не
+  отправляются, поэтому скрипт можно запускать из cron каждый час.
 
 ### 3.8 Сводка сетевого трафика
 

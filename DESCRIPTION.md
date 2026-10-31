@@ -448,7 +448,9 @@ Eight tiles are read in parallel (`ThreadPoolExecutor(8)`). A 24-tile Sentinel-2
   finds the newest PNG of each source in `output/` and posts it with
   `POST https://api.telegram.org/bot<token>/sendPhoto` (multipart: `chat_id`, `caption`,
   `photo`). For EUMETSAT and Copernicus sources the caption carries the credit that their
-  licences require ("Contains modified EUMETSAT Meteosat data 2026").
+  licences require ("Contains modified EUMETSAT Meteosat data 2026"). The names of sent pictures
+  are kept in `telegram_sent.txt` in the output folder, and those pictures are not sent again, so
+  the script can run hourly from cron.
 
 ### 3.8 Summary of the network traffic
 
