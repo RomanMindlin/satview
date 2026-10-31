@@ -58,7 +58,9 @@ uv run satview clean                            # delete cached raw data older t
 `output.overlays.cities=true`, ...). Add `-v` for debug output, `-vv` to include library logs.
 
 Pictures land in `output/<source>/<YYYY-MM-DD>/<source>[_<satellite>]_<YYYYMMDDTHHMM>.png`;
-animations in `output/<source>/`. Areas other than `israel` get their own folder,
+animations in `output/<source>/`. Daily pictures (`viirs_gibs`) carry only the date and get a
+folder per satellite, `output/<source>_<satellite>/`, so each folder's newest picture is that
+satellite's latest. Areas other than `israel` get their own folder,
 `output/<area>/<source>/...`. Reruns skip scenes that already exist (`--force` redoes them),
 and raw downloads are cached in `cache/`, so a range rerun rebuilds from cache.
 

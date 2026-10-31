@@ -40,16 +40,25 @@ def is_daylight(t: datetime, center: tuple[float, float]) -> bool:
     return sun_elevation(t, *center) >= MIN_SUN_ELEVATION
 
 
+def source_dir(out_dir: Path, source: str, tag: str, daily: bool) -> Path:
+    """output/<source>, or output/<source>[_<tag>] for daily images: those of different satellites
+    share the date-only stamp, so in one folder the newest picture (the one the Telegram sender
+    posts) would always be the same satellite's."""
+    return out_dir / ("_".join(part for part in (source, tag) if part) if daily else source)
+
+
 def output_path(out_dir: Path, granule: Granule, ext: str) -> Path:
-    """output/<source>/<YYYY-MM-DD>/<source>[_<tag>]_<YYYYMMDDTHHMM>.<ext> (date only for daily)."""
+    """<source dir>/<YYYY-MM-DD>/<source>[_<tag>]_<YYYYMMDDTHHMM>.<ext> (date only for daily)."""
     stamp = f"{granule.time:%Y%m%d}" if granule.daily else f"{granule.time:%Y%m%dT%H%M}"
     stem = "_".join(part for part in (granule.source, granule.tag, stamp) if part)
-    return out_dir / granule.source / f"{granule.time:%Y-%m-%d}" / f"{stem}.{ext}"
+    folder = source_dir(out_dir, granule.source, granule.tag, granule.daily)
+    return folder / f"{granule.time:%Y-%m-%d}" / f"{stem}.{ext}"
 
 
-def animation_path(out_dir: Path, source: str, tag: str, start: datetime, end: datetime, ext: str) -> Path:
+def animation_path(out_dir: Path, source: str, tag: str, start: datetime, end: datetime, ext: str,
+                   daily: bool = False) -> Path:
     stem = "_".join(part for part in (source, tag, f"{start:%Y%m%dT%H%M}", f"{end:%Y%m%dT%H%M}") if part)
-    return out_dir / source / f"{stem}.{ext}"
+    return source_dir(out_dir, source, tag, daily) / f"{stem}.{ext}"
 
 
 def to_rgba(data: np.ndarray, mode: str) -> np.ndarray:
@@ -212,7 +221,7 @@ def animate(source_name: str, results: list[Result], out: OutputConfig, force: b
         newest_frame = max(r.png.stat().st_mtime for r in frames)
         for fmt in out.animation_formats:
             path = animation_path(out.dir, source_name, tag, frames[0].granule.time,
-                                  frames[-1].granule.time, EXTENSIONS[fmt])
+                                  frames[-1].granule.time, EXTENSIONS[fmt], frames[0].granule.daily)
             if not force and path.exists() and path.stat().st_mtime >= newest_frame:
                 log.info("%s: %s is up to date", source_name, path.name)
                 written.append(path)

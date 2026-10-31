@@ -93,7 +93,7 @@ def main() -> int:
     for picture in new:
         print(f"{picture.name}: ", end="", flush=True)  # uploads take a while
         try:
-            # pictures sit in <source>/<YYYY-MM-DD>/
+            # pictures sit in <source>/<YYYY-MM-DD>/ (<source>_<satellite>/ for daily ones)
             send_photo(token, chat, picture, caption(picture.parent.parent.name, picture))
             # logged at once, so a crash later in the run doesn't post this one again
             mark_sent(log, picture.name)

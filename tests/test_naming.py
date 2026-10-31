@@ -19,15 +19,21 @@ def test_scene_path_with_tag():
     assert output_path(OUT, g, "tif") == OUT / "viirs_l1b/2026-10-30/viirs_l1b_noaa20_20261030T1007.tif"
 
 
-def test_daily_scene_path_has_no_time():
+def test_daily_scene_path_has_no_time_and_a_folder_per_tag():
     g = Granule("viirs_gibs", "id", T.replace(hour=0, minute=0), tag="snpp", daily=True)
-    assert output_path(OUT, g, "png") == OUT / "viirs_gibs/2026-10-30/viirs_gibs_snpp_20261030.png"
+    assert output_path(OUT, g, "png") == OUT / "viirs_gibs_snpp/2026-10-30/viirs_gibs_snpp_20261030.png"
 
 
 def test_animation_path():
     end = T.replace(hour=14, minute=0)
     assert animation_path(OUT, "meteosat9_iodc", "", T, end, "gif") == (
         OUT / "meteosat9_iodc/meteosat9_iodc_20261030T1007_20261030T1400.gif")
+
+
+def test_daily_animation_path_is_next_to_its_frames():
+    start, end = T.replace(hour=0, minute=0), T.replace(day=31, hour=0, minute=0)
+    assert animation_path(OUT, "viirs_gibs", "noaa20", start, end, "gif", daily=True) == (
+        OUT / "viirs_gibs_noaa20/viirs_gibs_noaa20_20261030T0000_20261031T0000.gif")
 
 
 def test_labels():

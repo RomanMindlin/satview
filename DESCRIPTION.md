@@ -445,7 +445,7 @@ Eight tiles are read in parallel (`ThreadPoolExecutor(8)`). A 24-tile Sentinel-2
   instruments' spectral response functions and the Rayleigh look-up tables are downloaded from
   Zenodo into `~/.local/share/pyspectral/`.
 - **Telegram** (optional, [telegram_sender.py](telegram_sender.py), not part of `satview`):
-  finds the newest PNG of each source in `output/` and posts it with
+  finds the newest PNG in each source folder of `output/` and posts it with
   `POST https://api.telegram.org/bot<token>/sendPhoto` (multipart: `chat_id`, `caption`,
   `photo`). For EUMETSAT and Copernicus sources the caption carries the credit that their
   licences require ("Contains modified EUMETSAT Meteosat data 2026"). The names of sent pictures
@@ -776,7 +776,9 @@ All files are written to a temporary `<name>.part.<ext>` and then renamed, so an
 
 - **PNG:** the rendered picture, at `output/<source>/<YYYY-MM-DD>/<source>[_<tag>]_<YYYYMMDDTHHMM>.png`.
   The tag tells apart products of one source at the same time (the satellite: `noaa20`, `S3A`,
-  `S2B`, …). Daily images carry only the date.
+  `S2B`, …). Daily images carry only the date, so pictures of different satellites have the same
+  time; each satellite gets its own folder, `output/<source>_<tag>/<YYYY-MM-DD>/`, which keeps
+  "the newest picture in the folder" meaningful for the Telegram sender.
 - **GeoTIFF** (`formats: [geotiff]`): the `Image` at the grid's native resolution, without
   overlays or label. It has 4 uint8 bands (RGB + alpha), deflate compression, CRS EPSG:32636, a
   geotransform from the grid extent, and the TIFF tags `DATETIME` and `IMAGEDESCRIPTION` (the
@@ -788,7 +790,8 @@ All files are written to a temporary `<name>.part.<ext>` and then renamed, so an
   - MP4: H.264 (`libx264`) with `yuv420p` and quality 8. H.264 with yuv420p needs even
     dimensions, so the frames are cropped by a pixel if needed.
 
-  File: `output/<source>/<source>[_<tag>]_<start>_<end>.<ext>`.
+  File: `output/<source>/<source>[_<tag>]_<start>_<end>.<ext>` (for daily images in
+  `output/<source>_<tag>/`, next to the frames).
 
 ---
 
