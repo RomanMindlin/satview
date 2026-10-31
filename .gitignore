@@ -1,0 +1,10 @@
+.env
+.venv/
+__pycache__/
+.pytest_cache/
+output/
+cache/
+*.part
+*.part.*
+.ruff_cache/
+config.yaml

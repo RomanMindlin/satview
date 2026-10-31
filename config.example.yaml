@@ -1,0 +1,75 @@
+# satview configuration. Copy to config.yaml and adjust.
+# Secrets never go here: only the names of the environment variables that hold them.
+# A .env file next to this file is loaded automatically (see .env.example).
+
+area: israel                     # israel: Eilat to the Golan | israel_north: the same, cut south of Mitzpe Ramon
+                                 # (other areas than israel are saved under output/<area>/)
+
+sources:
+  meteosat12_fci:
+    enabled: true
+    composite: true_color        # true_color | natural_color | vis_06
+    resolution: 1km              # 1km (FDHSI) | 500m (HRFI, red only: needs composite vis_06)
+    resampler: bilinear          # bilinear (smooth) | nearest (shows the 1 km pixels)
+    credentials:
+      key_env: EUMETSAT_KEY
+      secret_env: EUMETSAT_SECRET
+  meteosat9_iodc:
+    enabled: true
+    composite: natural_color     # natural_color | VIS006 (SEVIRI has no blue channel)
+    resampler: bilinear
+    credentials:
+      key_env: EUMETSAT_KEY
+      secret_env: EUMETSAT_SECRET
+    # enhance: {gamma: 1.0, contrast: 1.0, brightness: 1.0}   # per-source tweak, any source
+  viirs_gibs:
+    enabled: true
+    layers: [VIIRS_NOAA20_CorrectedReflectance_TrueColor,
+             VIIRS_SNPP_CorrectedReflectance_TrueColor]
+  viirs_l1b:
+    enabled: false
+    platforms: [noaa20, noaa21, snpp]
+    composite: true_color        # true_color | true_color_lowres | natural_color
+    nrt: false                   # true: LANCE near-real-time files (~3 h latency)
+    min_coverage: 0.6            # share of the area a pass must cover
+    pick: best                   # best pass per day | all daytime passes
+    credentials:                 # a token, or a username + password to create one
+      token_env: EARTHDATA_TOKEN
+      user_env: EARTHDATA_USERNAME
+      password_env: EARTHDATA_PASSWORD
+  sentinel3_olci:
+    enabled: false
+    platforms: [S3A, S3B]
+    composite: true_color        # true_color | true_color_land | true_color_desert
+    min_coverage: 0.6
+    pick: best
+    credentials:
+      user_env: CDSE_USER
+      password_env: CDSE_PASSWORD
+  sentinel2_msi:                 # no login; a full pass every 2-5 days
+    enabled: false
+    platforms: [S2A, S2B, S2C]
+    resolution_m: 100            # grid for this source (others: 500 m); 50-500
+    min_coverage: 0.6            # most passes only clip the area's edge
+    pick: best
+  landsat_oli:                   # no login; a pass every 8 days, published 1-2 weeks later
+    enabled: false
+    platforms: [L8, L9]
+    resolution_m: 100
+    min_coverage: 0.6            # the best path covers ~73% of the area
+    pick: best
+
+time:
+  mode: latest                   # latest | at | range
+  at: null                       # e.g. 2026-10-30T10:00Z
+  range: {start: null, end: null, step_minutes: 30}
+
+output:
+  dir: ./output                  # relative paths are relative to this file
+  cache_dir: ./cache
+  formats: [png]                 # png, geotiff, gif, mp4
+  width_px: 1200                 # null keeps the area's native ~500 m grid
+  overlays: {coastlines: true, borders: true, cities: false}
+  label: true                    # satellite name + UTC timestamp
+  keep_raw_days: 2
+  animation_fps: 4
