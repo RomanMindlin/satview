@@ -3,13 +3,18 @@ FROM python:3.12-slim
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     UV_LINK_MODE=copy \
-    UV_PYTHON_DOWNLOADS=never
+    UV_PYTHON_DOWNLOADS=never \
+    TZ=Asia/Jerusalem
 
 WORKDIR /app
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends cron \
+    && apt-get install -y --no-install-recommends cron tzdata \
     && rm -rf /var/lib/apt/lists/*
+
+# Debian cron ignores CRON_TZ and schedules by the system timezone
+RUN ln -sf /usr/share/zoneinfo/$TZ /etc/localtime \
+    && echo $TZ > /etc/timezone
 
 RUN python -m pip install --no-cache-dir uv
 

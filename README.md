@@ -76,10 +76,12 @@ message. Exit code is 0 if at least one source worked, 1 if all failed, 2 for co
 
 ### Docker
 
-The image runs cron in the foreground with the schedule in `crontab`: `satview run` at minute
-20 of every hour, `telegram_sender.py output/israel_north` at minute 45, and `satview clean`
-daily at 03:00 UTC. `config.yaml` and `.env` are mounted into `/app`; `output/` and `cache/`
-are bind-mounted so they outlive the container. Job output goes to `docker logs satview`.
+The image runs cron in the foreground with the schedule in `crontab`, in Israel time (the
+image sets `TZ=Asia/Jerusalem`, so summer time is followed): `satview run` at minute 20 and
+`telegram_sender.py output/israel_north` at minute 45 of every hour from 07:00 to 16:00, and
+`satview clean` daily at 03:00. `config.yaml` and `.env` are mounted into `/app`; `output/`
+and `cache/` are bind-mounted so they outlive the container. Job output goes to
+`docker logs satview`.
 
 ```bash
 docker compose up -d --build

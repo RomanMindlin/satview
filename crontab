@@ -3,7 +3,8 @@ PATH=/app/.venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 # Output goes to the container's stdout, so `docker logs satview` shows it.
 # flock: a slow run is not started again on top of itself.
-20 * * * * root cd /app && flock -n /tmp/satview.lock satview run >> /proc/1/fd/1 2>&1
-45 * * * * root cd /app && python telegram_sender.py output/israel_north >> /proc/1/fd/1 2>&1
+# Times are Israel time (the image sets TZ=Asia/Jerusalem): runs only between 07:00 and 16:00.
+20 7-15 * * * root cd /app && flock -n /tmp/satview.lock satview run >> /proc/1/fd/1 2>&1
+45 7-15 * * * root cd /app && python telegram_sender.py output/israel_north >> /proc/1/fd/1 2>&1
 # raw downloads (~3 GB a day) older than output.keep_raw_days
 0 3 * * * root cd /app && flock /tmp/satview.lock satview clean >> /proc/1/fd/1 2>&1
