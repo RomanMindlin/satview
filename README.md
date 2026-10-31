@@ -72,6 +72,27 @@ message. Exit code is 0 if at least one source worked, 1 if all failed, 2 for co
 0 3 * * *        cd /path/to/satweather && .venv/bin/satview clean >> satview.log 2>&1
 ```
 
+### Docker
+
+The image runs cron in the foreground with the schedule in `crontab`: `satview run` at minute
+20 of every hour, `telegram_sender.py output/israel_north` at minute 45, and `satview clean`
+daily at 03:00 UTC. `config.yaml` and `.env` are mounted into `/app`; `output/` and `cache/`
+are bind-mounted so they outlive the container. Job output goes to `docker logs satview`.
+
+```bash
+docker compose up -d --build
+docker logs -f satview
+docker exec satview sh -c 'cd /app && .venv/bin/satview run'   # a run now, without waiting
+```
+
+Pushes to `main` deploy through `.github/workflows/deploy.yml`: it writes `.env` from
+`.env.template` and the repository secrets (`EUMETSAT_KEY`, `EUMETSAT_SECRET`,
+`EARTHDATA_TOKEN` or `EARTHDATA_USERNAME` + `EARTHDATA_PASSWORD`, `CDSE_USER`,
+`CDSE_PASSWORD`, `TG_BOT_TOKEN`, `TG_CHANNEL_ID`), copies the checkout to
+`/home/mindlin/satview` over SSH (`SSH_HOST`, `SSH_PORT`, `SSH_USER`, `SEHEL_SSH_KEY`) and
+runs `docker compose up -d --build` there. `config.yaml` is not in git: put it in that folder
+once, with `area: israel_north` to match the sender.
+
 ## How it works
 
 Each source in `satview/sources/` implements `find` (search), `download` (into the cache) and

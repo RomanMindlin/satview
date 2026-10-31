@@ -1,0 +1,12 @@
+services:
+  satview:
+    build: .
+    image: satview:latest
+    container_name: satview
+    restart: unless-stopped
+    # cron jobs don't inherit the container environment: both scripts read /app/.env themselves
+    volumes:
+      - ./config.yaml:/app/config.yaml:ro
+      - ./.env:/app/.env:ro
+      - ./output:/app/output
+      - ./cache:/app/cache
